@@ -1,0 +1,19 @@
+{
+  "name": "servidores-act2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node --watch app.js"
+  },
+  "keywords": [],
+  "author": "Diana Florez <dianaflorezbravo@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongodb-memory-server": "^7.4.2",
+    "mongoose": "^5.13.5"
+
+  }
+}
