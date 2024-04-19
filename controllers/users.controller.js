@@ -1,8 +1,7 @@
 const User = require('../models/user.model')
-// const { v4: uuidv4 } = require('uuid');
-// const { sessions } = require("../middlewares/auth.middlewares");
+const { v4: uuidv4 } = require('uuid');
 
-const jwt = require('jsonwebtoken');
+const { sessions } = require("../middlewares/auth.middlewares");
 
 module.exports.list = (req, res) => {
   User.find()
@@ -84,15 +83,9 @@ module.exports.login = async (req, res) => {
     return res.status(401).json({ message: 'Invalid credentials' });
   }
 
-  //const token = uuidv4();
-  const token = jwt.sign({
-      sub: user.id,
-      exp: Date.now() / 1000 + 70,
-    }, 
-    process.env.JWT_SECRET // 'super secret'
-  );
+  const token = uuidv4();
 
-  // sessions.push({ userId: user.id, token });
+  sessions.push({ userId: user.id, token });
   res.json({token});
   
 };
