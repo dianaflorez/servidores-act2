@@ -1,4 +1,8 @@
 const User = require('../models/user.model')
+// const { v4: uuidv4 } = require('uuid');
+// const { sessions } = require("../middlewares/auth.middlewares");
+
+const jwt = require('jsonwebtoken');
 
 module.exports.list = (req, res) => {
   User.find()
@@ -20,7 +24,15 @@ module.exports.detail = (req, res) => {
     .catch(console.error);
 };
 
-module.exports.create = (req, res) => {
+module.exports.create = async (req, res) => {
+  const { name, email, password, bio } = req.body;
+
+  // Verifico si el correo electrónico ya está registrado
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return res.status(400).json({ message: 'El correo electrónico ya está registrado' });
+  }
+
   User.create(req.body)
     .then((user) => {
       res.json(user);
@@ -56,3 +68,36 @@ module.exports.delete = (req, res) => {
     res.status(400).json(err);
   });
 };
+
+module.exports.login = async (req, res) => {
+  const { email, password } = req.body;
+  
+  // Buscar el usuario por su correo electrónico
+  const user = await User.findOne({ email }).catch(console.error);
+  if (!user) {
+    return res.status(404).json({ message: 'Usuario not fond' });
+  }
+
+  // Verificar la contraseña utilizando el método checkPassword definido en el esquema de usuario
+  const passwordMatch = await user.checkPassword(password);
+  if (!passwordMatch) {
+    return res.status(401).json({ message: 'Invalid credentials' });
+  }
+
+  //const token = uuidv4();
+  const token = jwt.sign({
+      sub: user.id,
+      exp: Date.now() / 1000 + 70,
+    }, 
+    process.env.JWT_SECRET // 'super secret'
+  );
+
+  // sessions.push({ userId: user.id, token });
+  res.json({token});
+  
+};
+
+module.exports.logout = (req, res, next) => {
+  req.logout();
+  res.status(204).end()
+}
